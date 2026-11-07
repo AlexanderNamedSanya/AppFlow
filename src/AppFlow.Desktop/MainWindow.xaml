@@ -1,0 +1,217 @@
+<ui:FluentWindow x:Class="AppFlow.Desktop.MainWindow"
+ xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+ xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml" xmlns:core="clr-namespace:AppFlow.Core;assembly=AppFlow.Core"
+ xmlns:services="clr-namespace:AppFlow.Desktop.Services"
+ xmlns:local="clr-namespace:AppFlow.Desktop"
+ Title="AppFlow" Icon="{StaticResource AppFlowIcon}" Width="1160" Height="800" MinWidth="900" MinHeight="620" WindowStartupLocation="CenterScreen"
+ ExtendsContentIntoTitleBar="True" WindowBackdropType="Mica" Background="Transparent" FontFamily="Segoe UI Variable, Segoe UI" UseLayoutRounding="True">
+ <Grid>
+  <Grid.RowDefinitions><RowDefinition Height="48"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+  <ui:TitleBar Title="AppFlow" Background="Transparent" ShowMinimize="True" ShowMaximize="True"><ui:TitleBar.Icon><ui:ImageIcon Source="{StaticResource AppFlowIcon}"/></ui:TitleBar.Icon></ui:TitleBar>
+  <Grid Grid.Row="1">
+   <Grid.ColumnDefinitions><ColumnDefinition Width="272"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+   <Border Background="Transparent" Padding="16,16,16,18">
+    <Grid>
+     <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+     <DockPanel Grid.Row="1" Margin="10,0,0,12">
+      <Button DockPanel.Dock="Right" Content="+" FontSize="20" Width="34" Height="34" Padding="0" Style="{StaticResource NavigationButtonStyle}" Command="{Binding AddParentCommand}" ToolTip="Добавить программу" AutomationProperties.Name="Добавить программу"/>
+      <TextBlock Text="Отслеживаемые" FontSize="13" FontWeight="SemiBold" Foreground="{DynamicResource TextFillColorSecondaryBrush}" VerticalAlignment="Center"/>
+     </DockPanel>
+     <ListBox Grid.Row="2" ItemsSource="{Binding Parents}" SelectedItem="{Binding Selected}" BorderThickness="0" Background="Transparent" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+      <ListBox.ItemContainerStyle>
+       <Style TargetType="ListBoxItem" BasedOn="{StaticResource DefaultListBoxItemStyle}">
+        <Setter Property="HorizontalContentAlignment" Value="Stretch"/><Setter Property="Margin" Value="0,3"/><Setter Property="Padding" Value="10,12"/>
+        <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="ListBoxItem">
+         <Border x:Name="ItemSurface" Background="Transparent" CornerRadius="5">
+          <Grid><Border x:Name="SelectionMark" Background="{StaticResource AccentBrush}" Width="3" Height="20" CornerRadius="2" HorizontalAlignment="Left" Visibility="Collapsed"/>
+           <ContentPresenter Margin="{TemplateBinding Padding}" HorizontalAlignment="Stretch"/>
+          </Grid>
+         </Border>
+         <ControlTemplate.Triggers>
+          <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="ItemSurface" Property="Background" Value="{DynamicResource SubtleFillColorSecondaryBrush}"/></Trigger>
+          <Trigger Property="IsSelected" Value="True"><Setter TargetName="ItemSurface" Property="Background" Value="{DynamicResource SubtleFillColorSecondaryBrush}"/><Setter TargetName="SelectionMark" Property="Visibility" Value="Visible"/></Trigger>
+         </ControlTemplate.Triggers>
+        </ControlTemplate></Setter.Value></Setter>
+       </Style>
+      </ListBox.ItemContainerStyle>
+      <ListBox.ItemTemplate><DataTemplate>
+       <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="40"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+        <Border Width="30" Height="30" CornerRadius="7" Background="{DynamicResource ControlFillColorSecondaryBrush}"><Image Source="{Binding Icon}" Width="26" Height="26"/></Border>
+        <StackPanel Grid.Column="1"><TextBlock Text="{Binding Name}" TextTrimming="CharacterEllipsis" FontWeight="Medium"/>
+         <StackPanel Orientation="Horizontal" Margin="0,5,0,0"><Ellipse Width="5" Height="5" Fill="{DynamicResource TextFillColorTertiaryBrush}" Margin="0,0,5,0"><Ellipse.Style><Style TargetType="Ellipse"><Style.Triggers><DataTrigger Binding="{Binding Running}" Value="True"><Setter Property="Fill" Value="#4AA987"/></DataTrigger></Style.Triggers></Style></Ellipse.Style></Ellipse><TextBlock Text="{Binding State}" FontSize="11" Opacity="0.55"/></StackPanel>
+        </StackPanel>
+        <Button Grid.Column="2" Style="{StaticResource NavigationButtonStyle}" Width="32" Height="32" Padding="8" Margin="6,0,0,0" ToolTip="Запустить" AutomationProperties.Name="Запустить программу" Command="{Binding DataContext.LaunchProgramCommand, RelativeSource={RelativeSource AncestorType={x:Type Window}}}" CommandParameter="{Binding Executable}">
+         <Path Data="M 3,2 L 3,16 L 15,9 Z" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType={x:Type Button}}}" StrokeThickness="1.5" Stretch="Uniform" Width="12" Height="14"/>
+        </Button>
+       </Grid>
+      </DataTemplate></ListBox.ItemTemplate>
+     </ListBox>
+     <StackPanel Grid.Row="3">
+      <Button Style="{StaticResource NavigationButtonStyle}" HorizontalContentAlignment="Left" HorizontalAlignment="Stretch" Command="{Binding SettingsCommand}" Padding="12,12"><StackPanel Orientation="Horizontal"><ui:SymbolIcon Symbol="Settings24" FontSize="18" Margin="0,0,14,0"/><TextBlock Text="Настройки"/></StackPanel></Button>
+      <TextBlock Text="{Binding MonitorStatus}" FontSize="11" Opacity="0.5" Margin="12,16,0,0"/>
+      <TextBlock Text="{x:Static local:MainWindow.ApplicationVersion}" FontSize="11" Opacity="0.5" Margin="12,8,0,0" AutomationProperties.Name="Версия AppFlow"/>
+     </StackPanel>
+    </Grid>
+   </Border>
+   <Border Grid.Column="1" Background="{DynamicResource LayerFillColorDefaultBrush}" BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="10" Margin="0,0,8,8">
+    <Grid>
+   <Grid Margin="32,28,32,24">
+    <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+    <Grid Visibility="{Binding HasSelection, Converter={StaticResource BoolVisibility}}" Margin="0,0,0,24">
+     <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+     <TextBlock Text="{Binding Selected.Name}" FontSize="27" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"/>
+     <Button Grid.Column="1" Content="Удалить" Command="{Binding RemoveParentCommand}" VerticalAlignment="Top" Padding="12,7" ToolTip="Удалить программу и её связи"/>
+    </Grid>
+    <Border Grid.Row="1" Visibility="{Binding HasNotice, Converter={StaticResource BoolVisibility}}" Background="{DynamicResource ControlFillColorSecondaryBrush}" CornerRadius="8" Padding="12,10" Margin="0,0,0,16"><TextBlock Text="{Binding Notice}" TextWrapping="Wrap" FontSize="12"/></Border>
+    <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Visibility="{Binding HasSelection, Converter={StaticResource BoolVisibility}}">
+     <StackPanel>
+      <ItemsControl ItemsSource="{Binding Selected.Links}">
+       <ItemsControl.ItemTemplate><DataTemplate>
+        <Border Background="{DynamicResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="8" Margin="0,0,0,8">
+         <Expander HorizontalContentAlignment="Stretch" BorderThickness="0" Padding="12">
+          <Expander.Header>
+           <Grid Margin="0,4,8,4">
+            <Grid.ColumnDefinitions><ColumnDefinition Width="44"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+            <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+            <Image Source="{Binding Icon}" Width="30" Height="30" VerticalAlignment="Top" Margin="0,2,10,0"/>
+            <StackPanel Grid.Column="1"><TextBlock Text="{Binding Name}" FontSize="15" FontWeight="SemiBold"/><TextBlock Text="{Binding Status}" FontSize="10" Opacity="0.5" Margin="0,6,0,0" TextWrapping="Wrap" ToolTip="{Binding Status}"/></StackPanel>
+            <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Top">
+             <Button Style="{StaticResource NavigationButtonStyle}" Width="32" Height="32" Padding="8" Margin="0,0,10,0" ToolTip="{Binding LaunchLabel}" AutomationProperties.Name="{Binding LaunchLabel}" Command="{Binding DataContext.LaunchProgramCommand, RelativeSource={RelativeSource AncestorType={x:Type Window}}}" CommandParameter="{Binding Executable}">
+              <Path Data="M 3,2 L 3,16 L 15,9 Z" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType={x:Type Button}}}" StrokeThickness="1.5" Stretch="Uniform" Width="12" Height="14"/>
+             </Button>
+             <ui:ToggleSwitch IsChecked="{Binding Enabled, Mode=TwoWay}" ToolTip="Включить связь" AutomationProperties.Name="Связь включена"/>
+            </StackPanel>
+            <ScrollViewer Grid.Row="1" Grid.ColumnSpan="3" Margin="2,18,2,8" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" CanContentScroll="False" Focusable="False" AutomationProperties.Name="Превью событий">
+             <ScrollViewer.Style><Style TargetType="ScrollViewer" BasedOn="{StaticResource {x:Type ScrollViewer}}"><Style.Triggers>
+              <DataTrigger Binding="{Binding IsExpanded, RelativeSource={RelativeSource AncestorType={x:Type Expander}}}" Value="True"><Setter Property="Visibility" Value="Collapsed"/></DataTrigger>
+              <DataTrigger Binding="{Binding Preview.Count}" Value="0"><Setter Property="Visibility" Value="Collapsed"/></DataTrigger>
+             </Style.Triggers></Style></ScrollViewer.Style>
+             <ItemsControl ItemsSource="{Binding Preview}" HorizontalAlignment="Center">
+              <ItemsControl.ItemsPanel><ItemsPanelTemplate><StackPanel Orientation="Horizontal"/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+              <ItemsControl.ItemTemplate><DataTemplate>
+               <StackPanel Orientation="Horizontal" VerticalAlignment="Top">
+                <TextBlock Text="→" Visibility="{Binding HasPrevious, Converter={StaticResource BoolVisibility}}" FontSize="15" Opacity="0.5" Margin="6,4,6,0" VerticalAlignment="Top"/>
+                <StackPanel Width="94" VerticalAlignment="Top" ToolTip="{Binding Description}" AutomationProperties.Name="{Binding Description}">
+                 <Grid Width="24" Height="24" HorizontalAlignment="Center" services:ActionAnimation.Sequence="{Binding ActivityVersion}">
+                  <Path Data="{Binding Geometry}" Stroke="{Binding Color}" StrokeThickness="1.7" Stretch="Uniform" Width="20" Height="20">
+                   <Path.Style><Style TargetType="Path"><Style.Triggers><DataTrigger Binding="{Binding IsApplication}" Value="True"><Setter Property="Visibility" Value="Collapsed"/></DataTrigger></Style.Triggers></Style></Path.Style>
+                  </Path>
+                  <Grid Visibility="{Binding IsApplication, Converter={StaticResource BoolVisibility}}">
+                   <Path Data="M 3,4 L 21,4 L 21,21 L 3,21 Z M 3,9 L 21,9" Stroke="{DynamicResource TextFillColorSecondaryBrush}" StrokeThickness="1.2" Stretch="Uniform" Width="20" Height="20">
+                    <Path.Style><Style TargetType="Path"><Setter Property="Visibility" Value="Collapsed"/><Style.Triggers><DataTrigger Binding="{Binding Icon}" Value="{x:Null}"><Setter Property="Visibility" Value="Visible"/></DataTrigger></Style.Triggers></Style></Path.Style>
+                   </Path>
+                   <Image Source="{Binding Icon}" Width="22" Height="22"/>
+                   <Border Width="12" Height="12" CornerRadius="3" Background="{DynamicResource SolidBackgroundFillColorSecondaryBrush}" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,-4,-2"><Path Data="{Binding Geometry}" Stroke="{Binding Color}" StrokeThickness="2" Stretch="Uniform" Margin="1.5"/></Border>
+                  </Grid>
+                 </Grid>
+                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,5,0,0" Visibility="{Binding HasDelay, Converter={StaticResource BoolVisibility}}">
+                  <Path Data="M 5,2 L 19,2 L 19,6 L 5,18 L 5,22 L 19,22 L 19,18 L 5,6 Z" Stroke="{DynamicResource TextFillColorSecondaryBrush}" StrokeThickness="1.5" Stretch="Uniform" Width="9" Height="11" Margin="0,0,4,0"/>
+                  <TextBlock Text="{Binding Delay}" FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+                 </StackPanel>
+                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,5,0,0" Visibility="{Binding HasDetail, Converter={StaticResource BoolVisibility}}">
+                  <Path Data="M 8,2 L 16,2 M 12,2 L 12,5 M 12,5 A 8,8 0 1 1 11.99,5 M 12,8 L 12,13" Stroke="{DynamicResource TextFillColorSecondaryBrush}" StrokeThickness="1.7" Stretch="Uniform" Width="11" Height="12" Margin="0,0,4,0" Visibility="{Binding ShowTimer, Converter={StaticResource BoolVisibility}}"/>
+                  <TextBlock Text="{Binding Detail}" FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+                 </StackPanel>
+                </StackPanel>
+               </StackPanel>
+              </DataTemplate></ItemsControl.ItemTemplate>
+             </ItemsControl>
+            </ScrollViewer>
+           </Grid>
+          </Expander.Header>
+          <StackPanel Margin="12,12,12,6">
+           <Grid Visibility="{Binding CanLearnClose, Converter={StaticResource BoolVisibility}}" Margin="0,0,0,14">
+            <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+            <TextBlock Text="Научите AppFlow штатно закрывать программу через её меню или трей." FontSize="12" Foreground="{DynamicResource TextFillColorSecondaryBrush}" TextWrapping="Wrap" VerticalAlignment="Center" Margin="0,0,16,0"/>
+            <Button Grid.Column="1" Content="Обучить" Command="{Binding DataContext.LearnCloseCommand, RelativeSource={RelativeSource AncestorType={x:Type Window}}}" CommandParameter="{Binding}" HorizontalAlignment="Right" VerticalAlignment="Center" Padding="12,7" AutomationProperties.Name="Обучить закрытию" ToolTip="Покажите штатный выход. AppFlow проверит, как повторить его в фоне или через трей."/>
+           </Grid>
+           <ItemsControl ItemsSource="{Binding Events}"><ItemsControl.ItemTemplate><DataTemplate>
+            <Border Background="{DynamicResource LayerFillColorDefaultBrush}" CornerRadius="8" Margin="0,0,0,8">
+             <StackPanel>
+              <Border CornerRadius="8" Padding="12" Focusable="True" MouseLeftButtonUp="EventRow_MouseLeftButtonUp" KeyDown="EventRow_KeyDown" AutomationProperties.Name="Показать или скрыть настройки события">
+               <Border.Style><Style TargetType="Border">
+                <Setter Property="Background" Value="Transparent"/>
+                <Style.Triggers><Trigger Property="IsMouseOver" Value="True"><Setter Property="Background" Value="{DynamicResource ControlFillColorSecondaryBrush}"/></Trigger></Style.Triggers>
+               </Style></Border.Style>
+              <DockPanel>
+               <Button DockPanel.Dock="Right" Content="×" Padding="8,4" Command="{Binding RemoveCommand}" CommandParameter="{Binding}" ToolTip="Удалить событие" AutomationProperties.Name="Удалить событие"/>
+               <WrapPanel>
+                <StackPanel Orientation="Horizontal">
+                 <Image Source="{Binding DataContext.MainIcon, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}" ToolTip="{Binding DataContext.MainName, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}" Width="24" Height="24" Margin="0,0,10,0" VerticalAlignment="Center"/>
+                 <ComboBox SelectedValue="{Binding Trigger}" SelectedValuePath="Tag" Width="140" AutomationProperties.Name="Событие основной программы">
+                  <ComboBoxItem Content="Запущена" Tag="{x:Static core:ParentEvent.Started}"/><ComboBoxItem Content="Закрыта" Tag="{x:Static core:ParentEvent.Exited}"/><ComboBoxItem Content="Работает" Visibility="{Binding CanRun, Converter={StaticResource BoolVisibility}}" Tag="{x:Static core:ParentEvent.Running}"/>
+                 </ComboBox>
+                </StackPanel>
+                <TextBlock Text="→" FontSize="18" Margin="10,0" VerticalAlignment="Center" Opacity="0.6"/>
+                <StackPanel Orientation="Horizontal">
+                 <Image Source="{Binding DataContext.Icon, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}" ToolTip="{Binding DataContext.Name, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}" Width="24" Height="24" Margin="0,0,10,0" VerticalAlignment="Center"/>
+                 <ComboBox SelectedValue="{Binding Action}" SelectedValuePath="Tag" Width="125" AutomationProperties.Name="Действие дочерней программы"><ComboBoxItem Content="{Binding OpenActionLabel}" Tag="{x:Static core:FlowAction.Launch}"/><ComboBoxItem Content="{Binding CloseActionLabel}" Visibility="{Binding CanClose, Converter={StaticResource BoolVisibility}}" Tag="{x:Static core:FlowAction.Close}"/></ComboBox>
+                </StackPanel>
+               </WrapPanel>
+              </DockPanel>
+              </Border>
+              <StackPanel Visibility="{Binding OptionsOpen, Converter={StaticResource BoolVisibility}}" Margin="12,16,12,14">
+               <WrapPanel Visibility="{Binding SingleActionOptions, Converter={StaticResource BoolVisibility}}"><CheckBox Content="Задержка действия" IsChecked="{Binding DelayEnabled}" VerticalAlignment="Center"/><TextBox Text="{Binding Delay, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding DelayEnabled}" Width="78" Margin="12,0,8,0" AutomationProperties.Name="Задержка действия в секундах"/><TextBlock Text="сек." VerticalAlignment="Center" Opacity="0.6"/></WrapPanel>
+               <StackPanel Visibility="{Binding SingleLaunchOptions, Converter={StaticResource BoolVisibility}}" Margin="0,12,0,0">
+                <WrapPanel><CheckBox Content="Закрыть через" IsChecked="{Binding TimedClose}" VerticalAlignment="Center"/><TextBox Text="{Binding CloseAfter, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding TimedClose}" Width="78" Margin="12,0,8,0" AutomationProperties.Name="Таймер завершения в секундах"/><TextBlock Text="сек." VerticalAlignment="Center" Opacity="0.6"/></WrapPanel>
+                <TextBlock Text="{Binding TimerDescription}" Visibility="{Binding HasTimer, Converter={StaticResource BoolVisibility}}" TextWrapping="Wrap" FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}" Margin="26,7,0,0"/>
+
+               </StackPanel>
+               <StackPanel Visibility="{Binding CanRepeat, Converter={StaticResource BoolVisibility}}" Margin="0,12,0,0">
+                <StackPanel Visibility="{Binding IsCycle, Converter={StaticResource BoolVisibility}}" Margin="26,12,0,0">
+                 <WrapPanel><TextBlock Text="Работать" VerticalAlignment="Center" Width="65"/><TextBox Text="{Binding CloseAfter, UpdateSourceTrigger=PropertyChanged}" Width="78" AutomationProperties.Name="Время работы в цикле в секундах"/><TextBlock Text="сек. → закрыть" Margin="8,0,0,0" VerticalAlignment="Center"/></WrapPanel>
+                 <WrapPanel Margin="0,8,0,0"><TextBlock Text="Пауза" VerticalAlignment="Center" Width="65"/><TextBox Text="{Binding Interval, UpdateSourceTrigger=PropertyChanged}" Width="78" AutomationProperties.Name="Пауза цикла в секундах"/><TextBlock Text="сек. → запустить снова" Margin="8,0,0,0" VerticalAlignment="Center"/></WrapPanel>
+                 <TextBlock Text="Цикл выполняется, пока основная программа работает. При её закрытии новые запуски прекращаются; текущая фаза заканчивается по таймеру. Для немедленного закрытия добавьте отдельное событие." FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}" TextWrapping="Wrap" Margin="0,10,0,0"/>
+                </StackPanel>
+               </StackPanel>
+              </StackPanel>
+             </StackPanel>
+            </Border>
+           </DataTemplate></ItemsControl.ItemTemplate></ItemsControl>
+           <Button Content="+ Событие" Command="{Binding AddEventCommand}" Margin="0,4,0,18" Padding="12,7"/>
+           <DockPanel><Button DockPanel.Dock="Right" Content="Удалить связь" Command="{Binding DataContext.RemoveLinkCommand, RelativeSource={RelativeSource AncestorType={x:Type Window}}}" CommandParameter="{Binding}" FontSize="11" Padding="10,5"/><TextBlock Text="{Binding Executable}" TextTrimming="CharacterEllipsis" ToolTip="{Binding Executable}" Opacity="0.4" FontSize="10" VerticalAlignment="Center" Margin="0,0,12,0"/></DockPanel>
+          </StackPanel>
+         </Expander>
+        </Border>
+       </DataTemplate></ItemsControl.ItemTemplate>
+      </ItemsControl>
+      <Button Command="{Binding AddLinkCommand}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Padding="16,16" Margin="0,2,0,20" Content="＋  Добавить действие"/>
+      <TextBlock Text="AppFlow управляет только теми экземплярами, которые запустил сам." TextWrapping="Wrap" FontSize="11" Opacity="0.45" HorizontalAlignment="Center" Margin="16,0"/>
+     </StackPanel>
+    </ScrollViewer>
+    <StackPanel Grid.Row="2" VerticalAlignment="Center" HorizontalAlignment="Center" MaxWidth="360" Visibility="{Binding NoSelection, Converter={StaticResource BoolVisibility}}">
+     <Border Background="{DynamicResource ControlFillColorSecondaryBrush}" CornerRadius="18" Padding="20" HorizontalAlignment="Center" Margin="0,0,0,24"><Image Source="{StaticResource AppFlowIcon}" Width="48" Height="48"/></Border>
+     <TextBlock Text="Пусть программы работают вместе" FontSize="22" FontWeight="SemiBold" TextAlignment="Center" TextWrapping="Wrap"/>
+     <TextBlock Text="Добавьте программу, за которой нужно следить. Затем свяжите с ней приложения и настройте их запуск и закрытие." TextWrapping="Wrap" TextAlignment="Center" Opacity="0.55" Margin="0,14,0,24" FontSize="13"/>
+     <Button Content="+" FontSize="24" Width="44" Height="44" Padding="0" Command="{Binding AddParentCommand}" HorizontalAlignment="Center" ToolTip="Добавить программу" AutomationProperties.Name="Добавить программу"/>
+    </StackPanel>
+   </Grid>
+   <Border Background="{DynamicResource SolidBackgroundFillColorSecondaryBrush}" CornerRadius="10" Padding="32,28" Visibility="{Binding SettingsOpen, Converter={StaticResource BoolVisibility}}">
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+    <StackPanel>
+     <TextBlock Text="Настройки" FontSize="28" FontWeight="SemiBold" Margin="0,0,0,24"/>
+     <Border Style="{StaticResource SettingsCardStyle}"><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="36"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+      <ui:SymbolIcon Symbol="Power24" FontSize="21" HorizontalAlignment="Left"/>
+      <StackPanel Grid.Column="1" Margin="0,0,20,0" VerticalAlignment="Center"><TextBlock Text="Автозапуск" FontSize="14"/><TextBlock Text="Запускать вместе с Windows" FontSize="12" Foreground="{DynamicResource TextFillColorSecondaryBrush}" TextWrapping="Wrap" Margin="0,5,0,0"/></StackPanel>
+      <ui:ToggleSwitch Grid.Column="2" IsChecked="{Binding AutoStart}" VerticalAlignment="Center" AutomationProperties.Name="Запускать вместе с Windows"/>
+     </Grid></Border>
+     <Border Style="{StaticResource SettingsCardStyle}"><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="36"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+      <ui:SymbolIcon Symbol="PaintBrush24" FontSize="21" HorizontalAlignment="Left"/>
+      <StackPanel Grid.Column="1" Margin="0,0,20,0" VerticalAlignment="Center"><TextBlock Text="Тема оформления" FontSize="14"/><TextBlock Text="Выберите внешний вид приложения" FontSize="12" Foreground="{DynamicResource TextFillColorSecondaryBrush}" TextWrapping="Wrap" Margin="0,5,0,0"/></StackPanel>
+      <ComboBox Grid.Column="2" SelectedValue="{Binding Theme}" SelectedValuePath="Tag" Width="164" VerticalAlignment="Center" AutomationProperties.Name="Тема оформления"><ComboBoxItem Content="Как в системе" Tag="{x:Static core:ThemeChoice.System}"/><ComboBoxItem Content="Светлая" Tag="{x:Static core:ThemeChoice.Light}"/><ComboBoxItem Content="Тёмная" Tag="{x:Static core:ThemeChoice.Dark}"/></ComboBox>
+     </Grid></Border>
+     <Border Style="{StaticResource SettingsCardStyle}"><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="36"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+      <ui:SymbolIcon Symbol="Window24" FontSize="21" HorizontalAlignment="Left"/>
+      <StackPanel Grid.Column="1" Margin="0,0,20,0" VerticalAlignment="Center"><TextBlock Text="Сворачивать в трей" FontSize="14"/><TextBlock Text="При закрытии окна мониторинг продолжится в фоне" FontSize="12" Foreground="{DynamicResource TextFillColorSecondaryBrush}" TextWrapping="Wrap" Margin="0,5,0,0"/></StackPanel>
+      <ui:ToggleSwitch Grid.Column="2" IsChecked="{Binding MinimizeToTray}" VerticalAlignment="Center" AutomationProperties.Name="При закрытии окна сворачивать в трей"/>
+     </Grid></Border>
+     <Button Content="Назад" Command="{Binding SettingsCommand}" HorizontalAlignment="Left" Margin="0,18,0,0"/>
+     <TextBlock Text="{Binding Notice}" TextWrapping="Wrap" Opacity="0.6" FontSize="12" Margin="0,20,0,0"/>
+    </StackPanel>
+    </ScrollViewer>
+   </Border>
+    </Grid>
+   </Border>
+  </Grid>
+ </Grid>
+</ui:FluentWindow>

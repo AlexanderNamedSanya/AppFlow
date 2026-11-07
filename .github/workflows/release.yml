@@ -1,0 +1,35 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - name: Verify tag and build executable
+        shell: pwsh
+        run: |
+          $version = ([xml](Get-Content src/AppFlow.Desktop/AppFlow.Desktop.csproj -Raw)).Project.PropertyGroup.Version
+          if ($env:GITHUB_REF_NAME -ne "v$version") { throw 'Tag must match project version.' }
+          ./scripts/publish.ps1
+      - name: Package sources and publish release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $version = $env:GITHUB_REF_NAME.Substring(1)
+          $sources = "artifacts/AppFlow-$version-sources.zip"
+          git archive --format=zip --prefix="AppFlow-$version/" -o $sources HEAD
+          if ($LASTEXITCODE -ne 0) { throw 'Source archive failed.' }
+          gh release create $env:GITHUB_REF_NAME artifacts/win-x64/AppFlow.exe $sources --verify-tag --title "AppFlow $version" --notes "Windows x64 standalone executable and complete source code. No separate .NET installation required."
+          if ($LASTEXITCODE -ne 0) { throw 'Release publication failed.' }

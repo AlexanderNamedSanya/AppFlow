@@ -1,0 +1,4 @@
+<Solution>
+ <Folder Name="/src/"><Project Path="src/AppFlow.Core/AppFlow.Core.csproj"/><Project Path="src/AppFlow.Desktop/AppFlow.Desktop.csproj"/></Folder>
+ <Folder Name="/tests/"><Project Path="tests/AppFlow.Tests/AppFlow.Tests.csproj"/><Project Path="tests/AppFlow.TestProcess/AppFlow.TestProcess.csproj"/><Project Path="tests/AppFlow.TestGui/AppFlow.TestGui.csproj"/></Folder>
+</Solution>

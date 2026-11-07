@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>Assets/AppFlow.ico</ApplicationIcon>
+    <AssemblyName>AppFlow</AssemblyName>
+    <Version>26.11.3</Version>
+  </PropertyGroup>
+  <ItemGroup>
+    <Resource Include="Assets/AppFlow.ico" />
+    <Resource Include="Assets/AppFlow.png" />
+    <InternalsVisibleTo Include="AppFlow.Tests" />
+    <ProjectReference Include="../AppFlow.Core/AppFlow.Core.csproj" />
+    <PackageReference Include="WPF-UI" Version="4.3.0" />
+    <PackageReference Include="System.Management" Version="10.0.0" />
+  </ItemGroup>
+</Project>

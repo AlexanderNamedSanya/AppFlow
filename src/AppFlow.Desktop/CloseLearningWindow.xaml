@@ -1,0 +1,32 @@
+<ui:FluentWindow x:Class="AppFlow.Desktop.CloseLearningWindow"
+ xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+ Title="Обучить закрытию" Icon="{StaticResource AppFlowIcon}" Width="400" Height="400" ResizeMode="NoResize" WindowStartupLocation="CenterOwner" ShowInTaskbar="False"
+ ExtendsContentIntoTitleBar="True" WindowBackdropType="Mica" Background="Transparent" Foreground="{DynamicResource TextFillColorPrimaryBrush}" FontFamily="Segoe UI Variable, Segoe UI" UseLayoutRounding="True">
+ <Grid TextElement.Foreground="{DynamicResource TextFillColorPrimaryBrush}">
+  <Grid.RowDefinitions><RowDefinition Height="44"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+  <ui:TitleBar Title="Обучить закрытию" ShowMinimize="False" ShowMaximize="False"/>
+  <Border Grid.Row="1" Margin="8,0,8,8" Padding="24,18" Background="{DynamicResource LayerFillColorDefaultBrush}" BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="8">
+   <Grid>
+    <Grid.RowDefinitions><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+    <StackPanel VerticalAlignment="Center">
+     <Grid Width="58" Height="58" Margin="0,0,0,20">
+      <ui:ProgressRing IsIndeterminate="{Binding ShowProgress}" Width="58" Height="58" Visibility="{Binding ShowProgress, Converter={StaticResource BoolVisibility}}" AutomationProperties.Name="{Binding Status}"/>
+      <Path Data="M 7,25 L 20,38 L 45,11" Stroke="{StaticResource AccentBrush}" StrokeThickness="4" StrokeStartLineCap="Round" StrokeEndLineCap="Round" Stretch="Uniform" Width="38" Height="32" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="{Binding ShowRecordedIcon, Converter={StaticResource BoolVisibility}}"/>
+     </Grid>
+     <TextBlock Text="{Binding Status}" TextAlignment="Center" TextWrapping="Wrap" FontSize="17" FontWeight="SemiBold"/>
+     <TextBlock Text="{Binding Detail}" TextAlignment="Center" TextWrapping="Wrap" FontSize="12" Foreground="{DynamicResource TextFillColorSecondaryBrush}" Margin="0,10,0,0"/>
+     <TextBlock Text="{Binding Error}" Visibility="{Binding HasError, Converter={StaticResource BoolVisibility}}" ToolTip="{Binding Error}" TextAlignment="Center" TextWrapping="Wrap" FontSize="11" MaxHeight="42" TextTrimming="CharacterEllipsis" Foreground="{DynamicResource SystemFillColorCriticalBrush}" Margin="0,10,0,0"/>
+    </StackPanel>
+    <StackPanel Grid.Row="1" Margin="0,18,0,0">
+     <Button Command="{Binding LaunchCommand}" IsEnabled="{Binding CanLaunch}" Visibility="{Binding IsLearning, Converter={StaticResource BoolVisibility}}" HorizontalAlignment="Stretch" Padding="12,10" ToolTip="{Binding LaunchLabel}" AutomationProperties.Name="{Binding LaunchLabel}">
+      <TextBlock Text="{Binding LaunchLabel}" TextWrapping="Wrap" TextAlignment="Center" MaxWidth="288" MaxHeight="36" TextTrimming="CharacterEllipsis"/>
+     </Button>
+     <StackPanel Visibility="{Binding IsRecorded, Converter={StaticResource BoolVisibility}}">
+      <ui:Button Content="Завершить обучение" Appearance="Primary" Command="{Binding FinishCommand}" IsEnabled="{Binding CanFinish}" HorizontalAlignment="Stretch" Padding="12,10"/>
+      <Button Content="Добавить способ закрытия" Command="{Binding AddMethodCommand}" IsEnabled="{Binding CanFinish}" HorizontalAlignment="Stretch" Padding="12,10" Margin="0,8,0,0"/>
+     </StackPanel>
+    </StackPanel>
+   </Grid>
+  </Border>
+ </Grid>
+</ui:FluentWindow>
